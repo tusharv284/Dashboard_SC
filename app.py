@@ -10,7 +10,6 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, r2_score
 
-# ── PAGE CONFIG ───────────────────────────────────────
 st.set_page_config(
     page_title="DataSync Analytics",
     page_icon="🛠️",
@@ -18,22 +17,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ── PREMIUM DARK THEME ────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-
 .stApp { background: linear-gradient(135deg, #0a0e1a 0%, #0d1117 100%); }
-
-/* Sidebar */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #0d1f3c 0%, #0a0e1a 100%);
     border-right: 1px solid #1e3a5f;
 }
-
-/* Metric cards */
 div[data-testid="metric-container"] {
     background: linear-gradient(135deg, #0d1f3c, #162032);
     border: 1px solid #1e3a5f;
@@ -41,50 +33,24 @@ div[data-testid="metric-container"] {
     padding: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
-
-/* Tab styling */
 .stTabs [data-baseweb="tab-list"] {
-    background: #0d1117;
-    border-radius: 10px;
-    padding: 4px;
-    gap: 4px;
+    background: #0d1117; border-radius: 10px; padding: 4px; gap: 4px;
 }
 .stTabs [data-baseweb="tab"] {
-    background: transparent;
-    border-radius: 8px;
-    color: #8892a4;
-    font-weight: 600;
-    padding: 8px 20px;
+    background: transparent; border-radius: 8px;
+    color: #8892a4; font-weight: 600; padding: 8px 20px;
 }
 .stTabs [aria-selected="true"] {
     background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
     color: white !important;
 }
-
-/* Plotly chart container */
-.js-plotly-plot {
-    border-radius: 12px;
-    border: 1px solid #1e3a5f;
-}
-
-/* Headers */
-h1 { 
+h1 {
     background: linear-gradient(90deg, #3b82f6, #06b6d4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 700;
 }
 h2, h3 { color: #e2e8f0 !important; }
-
-/* Dataframe */
-.dataframe { background: #0d1f3c !important; }
-
-/* Success/Info boxes */
-.stSuccess { background: #052e16; border: 1px solid #16a34a; border-radius: 8px; }
-.stInfo    { background: #0c1a3a; border: 1px solid #3b82f6; border-radius: 8px; }
-.stWarning { background: #2d1a00; border: 1px solid #f59e0b; border-radius: 8px; }
-
-/* Caption */
 .caption-box {
     background: #0d1f3c;
     border-left: 3px solid #3b82f6;
@@ -92,7 +58,7 @@ h2, h3 { color: #e2e8f0 !important; }
     border-radius: 0 8px 8px 0;
     font-size: 0.85em;
     color: #94a3b8;
-    margin-top: -10px;
+    margin-top: -8px;
     margin-bottom: 16px;
 }
 </style>
@@ -154,8 +120,8 @@ with st.sidebar:
     st.markdown("*McKinsey Analytics | Mar 2026*")
     st.markdown("---")
     st.markdown("### 🔍 Filters")
-    region = st.multiselect("Region", df['Region'].unique(), default=list(df['Region'].unique()))
-    size   = st.multiselect("Company Size", df['Company_Size'].unique(), default=list(df['Company_Size'].unique()))
+    region  = st.multiselect("Region", df['Region'].unique(), default=list(df['Region'].unique()))
+    size    = st.multiselect("Company Size", df['Company_Size'].unique(), default=list(df['Company_Size'].unique()))
     comfort = st.multiselect("Tech Comfort", df['Tech_Comfort'].unique(), default=list(df['Tech_Comfort'].unique()))
     st.markdown("---")
     st.markdown("### 📋 Dataset Info")
@@ -182,13 +148,13 @@ with col_h2:
 
 st.markdown("---")
 
-# ── KPI ROW ───────────────────────────────────────────
+# ── KPIs ──────────────────────────────────────────────
 k1, k2, k3, k4, k5 = st.columns(5)
-k1.metric("🏭 Firms w/ Issues",   f"{(df_f['Sys_Integration_Issue']=='Yes').mean():.0%}", "↑5% YoY")
-k2.metric("💰 Avg Maint. Cost",   f"${df_f['Maintenance_Cost_USD'].mean():,.0f}", "↑$2.1K")
-k3.metric("💵 Avg Budget",        f"${df_f['Budget_Willing_USD'].mean():,.0f}", "↑8%")
-k4.metric("⏱️ Avg Latency",       f"{df_f['Avg_Sync_Latency_min'].mean():.1f} min", "↓0.4 min")
-k5.metric("📦 Avg Orders/Month",  f"{df_f['Monthly_Orders'].mean():,.0f}", "↑3%")
+k1.metric("🏭 Firms w/ Issues",  f"{(df_f['Sys_Integration_Issue']=='Yes').mean():.0%}", "↑5% YoY")
+k2.metric("💰 Avg Maint. Cost",  f"${df_f['Maintenance_Cost_USD'].mean():,.0f}", "↑$2.1K")
+k3.metric("💵 Avg Budget",       f"${df_f['Budget_Willing_USD'].mean():,.0f}", "↑8%")
+k4.metric("⏱️ Avg Latency",      f"{df_f['Avg_Sync_Latency_min'].mean():.1f} min", "↓0.4")
+k5.metric("📦 Avg Orders/Month", f"{df_f['Monthly_Orders'].mean():,.0f}", "↑3%")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -211,44 +177,52 @@ with tab1:
 
     with c1:
         agg = df_f.groupby('Sys_Integration_Issue')['Maintenance_Cost_USD'].mean().reset_index()
-        fig = px.bar(agg, x='Sys_Integration_Issue', y='Maintenance_Cost_USD',
-                     color='Sys_Integration_Issue', title="Maintenance Cost: Integration Issues vs None",
+        agg.columns = ['Integration Issue', 'Avg Maintenance Cost ($)']
+        fig = px.bar(agg, x='Integration Issue', y='Avg Maintenance Cost ($)',
+                     color='Integration Issue',
+                     title="Maintenance Cost by Integration Issue",
                      color_discrete_map={'Yes':'#ef4444','No':'#22c55e'})
-        fig.update_layout(**CHART_TEMPLATE)
+        fig.update_layout(**CHART_TEMPLATE, showlegend=False, height=320)
         st.plotly_chart(fig, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 Firms with integration issues pay <b>58% more</b> in maintenance — the core value prop for DataSync.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="caption-box">💡 Firms with integration issues pay <b>58% more</b> in maintenance — core value prop for DataSync.</div>', unsafe_allow_html=True)
 
     with c2:
-        fig2 = px.pie(df_f, names='Interest_In_DataSync',
+        pie_df = df_f['Interest_In_DataSync'].value_counts().reset_index()
+        pie_df.columns = ['Interest', 'Count']
+        fig2 = px.pie(pie_df, names='Interest', values='Count',
                       title="Adoption Interest Distribution",
                       color_discrete_sequence=['#3b82f6','#f59e0b','#ef4444'],
                       hole=0.45)
-        fig2.update_layout(**CHART_TEMPLATE)
-        fig2.update_traces(textinfo='percent+label')
+        fig2.update_layout(**CHART_TEMPLATE, height=320)
+        fig2.update_traces(textinfo='percent+label', textposition='inside')
         st.plotly_chart(fig2, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 <b>75% of firms</b> express Yes or Maybe interest — market demand is high and validated.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="caption-box">💡 <b>75% of firms</b> express Yes or Maybe — market demand is high and validated.</div>', unsafe_allow_html=True)
 
     c3, c4 = st.columns(2)
     with c3:
-        fig3 = px.box(df_f, x='Manual_Error_Freq', y='Maintenance_Cost_USD',
-                      color='Manual_Error_Freq', title="Error Frequency vs Maintenance Cost",
-                      color_discrete_sequence=['#22c55e','#f59e0b','#ef4444'],
-                      category_orders={'Manual_Error_Freq':['Low','Medium','High']})
-        fig3.update_layout(**CHART_TEMPLATE)
+        box_df = df_f[['Manual_Error_Freq','Maintenance_Cost_USD']].copy()
+        box_df.columns = ['Error Frequency','Maintenance Cost ($)']
+        fig3 = px.box(box_df, x='Error Frequency', y='Maintenance Cost ($)',
+                      color='Error Frequency',
+                      title="Error Frequency vs Maintenance Cost",
+                      color_discrete_map={'Low':'#22c55e','Medium':'#f59e0b','High':'#ef4444'},
+                      category_orders={'Error Frequency':['Low','Medium','High']})
+        fig3.update_layout(**CHART_TEMPLATE, showlegend=False, height=320)
         st.plotly_chart(fig3, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 High-error firms face <b>2.3x cost variance</b> — unpredictable, urgent pain requiring DataSync intervention.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="caption-box">💡 High-error firms face <b>2.3x cost variance</b> — urgent pain requiring DataSync intervention.</div>', unsafe_allow_html=True)
 
     with c4:
         region_agg = df_f.groupby('Region').agg(
             Avg_Cost=('Maintenance_Cost_USD','mean'),
             Count=('Respondent_ID','count')
         ).reset_index()
-        fig4 = px.bar(region_agg, x='Region', y='Avg_Cost', color='Count',
+        region_agg.columns = ['Region','Avg Cost ($)','Firm Count']
+        fig4 = px.bar(region_agg, x='Region', y='Avg Cost ($)', color='Firm Count',
                       title="Avg Maintenance Cost by Region",
                       color_continuous_scale='Blues')
-        fig4.update_layout(**CHART_TEMPLATE)
+        fig4.update_layout(**CHART_TEMPLATE, height=320)
         st.plotly_chart(fig4, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 UAE has the highest avg cost and sample density — primary launch market for DataSync.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="caption-box">💡 UAE has highest avg cost and density — primary launch market for DataSync.</div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════
 # TAB 2 — CLASSIFICATION
@@ -267,38 +241,32 @@ with tab2:
     y_pred_clf = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred_clf)
 
-    imp = pd.DataFrame({'Feature': features, 'Importance': clf.feature_importances_}).sort_values('Importance')
+    feat_labels = ['Maint. Cost','Sync Latency','Insight Delay','Budget Willing','Monthly Orders']
+    imp = pd.DataFrame({'Feature': feat_labels, 'Importance': clf.feature_importances_}).sort_values('Importance')
 
     c1, c2 = st.columns([2,1])
     with c1:
         fig = px.bar(imp, x='Importance', y='Feature', orientation='h',
                      title="Feature Importance — What Drives Adoption?",
                      color='Importance', color_continuous_scale='Blues')
-        fig.update_layout(**CHART_TEMPLATE)
+        fig.update_layout(**CHART_TEMPLATE, height=350)
         st.plotly_chart(fig, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 <b>Budget & Maintenance Cost</b> dominate prediction — financial pain is the #1 trigger for DataSync adoption.</div>', unsafe_allow_html=True)
-
+        st.markdown('<div class="caption-box">💡 <b>Budget & Maintenance Cost</b> dominate — financial pain is the #1 trigger for DataSync adoption.</div>', unsafe_allow_html=True)
     with c2:
         st.markdown("<br><br>", unsafe_allow_html=True)
         st.metric("🎯 Model Accuracy", f"{acc:.0%}")
         st.metric("🌳 Trees Used", "100")
-        st.metric("📊 Max Depth", "6")
         st.metric("✂️ Test Split", "20%")
         st.markdown("---")
-        st.markdown("""
-        **Key Finding**
-        Firms with monthly maintenance >$15K are **3x more likely** to adopt DataSync.
-        Low-tech-comfort firms need onboarding support bundled in.
-        """)
+        st.markdown("**Key Finding**: Firms with monthly maintenance >$15K are **3x more likely** to adopt DataSync.")
 
-    # Prediction counts bar
     pred_df = pd.DataFrame({'Actual': y_test.values, 'Predicted': y_pred_clf})
     conf_data = pred_df.groupby(['Actual','Predicted']).size().reset_index(name='Count')
     fig2 = px.bar(conf_data, x='Actual', y='Count', color='Predicted',
                   title="Prediction Distribution by Actual Class", barmode='group')
-    fig2.update_layout(**CHART_TEMPLATE)
+    fig2.update_layout(**CHART_TEMPLATE, height=300)
     st.plotly_chart(fig2, use_container_width=True)
-    st.markdown('<div class="caption-box">💡 Model correctly identifies the majority class (Yes) with high recall — reliable for sales targeting.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="caption-box">💡 Model correctly identifies majority class (Yes) with high recall — reliable for sales targeting.</div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════
 # TAB 3 — CLUSTERING
@@ -315,7 +283,7 @@ with tab3:
 
     seg_means = df_f.groupby('Cluster')['Maintenance_Cost_USD'].mean()
     order_map = seg_means.sort_values(ascending=False).index.tolist()
-    name_map = {order_map[0]: '🔴 High-Pain', order_map[1]: '🟡 Mid-Pain', order_map[2]: '🟢 Low-Pain'}
+    name_map = {order_map[0]:'🔴 High-Pain', order_map[1]:'🟡 Mid-Pain', order_map[2]:'🟢 Low-Pain'}
     df_f['Segment'] = df_f['Cluster'].map(name_map)
 
     c1, c2 = st.columns(2)
@@ -324,39 +292,40 @@ with tab3:
                          color='Segment', size='Avg_Sync_Latency_min',
                          title="3 Customer Segments: Cost vs Budget",
                          hover_data=['Company_Size','Region','Tech_Comfort'],
+                         labels={'Maintenance_Cost_USD':'Maintenance Cost ($)','Budget_Willing_USD':'Budget Willing ($)'},
                          color_discrete_map={'🔴 High-Pain':'#ef4444','🟡 Mid-Pain':'#f59e0b','🟢 Low-Pain':'#22c55e'})
-        fig.update_layout(**CHART_TEMPLATE)
+        fig.update_layout(**CHART_TEMPLATE, height=350)
         st.plotly_chart(fig, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 High-Pain cluster (top-right) has highest cost AND budget — most profitable targets for DataSync sales.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="caption-box">💡 High-Pain cluster (top-right) has highest cost AND budget — most profitable DataSync targets.</div>', unsafe_allow_html=True)
 
     with c2:
-        seg_summary = df_f.groupby('Segment')[cluster_features + ['Monthly_Orders']].mean().round(0).reset_index()
-        fig2 = px.bar(seg_summary, x='Segment', y='Maintenance_Cost_USD',
+        seg_summary = df_f.groupby('Segment')[cluster_features].mean().round(0).reset_index()
+        seg_summary.columns = ['Segment','Avg Maint. Cost ($)','Avg Latency (min)','Avg Budget ($)']
+        fig2 = px.bar(seg_summary, x='Segment', y='Avg Maint. Cost ($)',
                       color='Segment', title="Avg Maintenance Cost by Segment",
                       color_discrete_map={'🔴 High-Pain':'#ef4444','🟡 Mid-Pain':'#f59e0b','🟢 Low-Pain':'#22c55e'})
-        fig2.update_layout(**CHART_TEMPLATE)
+        fig2.update_layout(**CHART_TEMPLATE, showlegend=False, height=350)
         st.plotly_chart(fig2, use_container_width=True)
         st.markdown('<div class="caption-box">💡 High-Pain segment averages $22K vs $9K Low-Pain — DataSync pricing should be tiered by segment.</div>', unsafe_allow_html=True)
 
-    st.markdown("#### Segment Profile Table")
-    st.dataframe(seg_summary.style.background_gradient(cmap='Blues', subset=['Maintenance_Cost_USD','Budget_Willing_USD']),
-                 use_container_width=True)
+    st.markdown("#### Segment Profile Summary")
+    st.dataframe(seg_summary, use_container_width=True)
 
 # ══════════════════════════════════════════
 # TAB 4 — ASSOCIATION RULES
 # ══════════════════════════════════════════
 with tab4:
     st.markdown("### 🔗 Association Rules — Pain Pattern Mining")
-    st.markdown("**Discovers** which combinations of integration problems most predict DataSync adoption intent.")
+    st.markdown("**Discovers** which combinations of integration problems most predict DataSync adoption.")
 
     base_rate = (df_f['Interest_In_DataSync']=='Yes').mean()
     conditions = {
-        'High Errors + Sys Issue':         (df_f['Manual_Error_Freq']=='High') & (df_f['Sys_Integration_Issue']=='Yes'),
-        'Sys Issue + No Insights':         (df_f['Sys_Integration_Issue']=='Yes') & (df_f['RealTime_Insights']=='None'),
-        'High Latency + High Errors':      (df_f['Avg_Sync_Latency_min']>5) & (df_f['Manual_Error_Freq']=='High'),
-        'No Insights + Basic Personal.':   (df_f['RealTime_Insights']=='None') & (df_f['Personalization_Level']=='Basic'),
-        'High Cost + Long Latency':        (df_f['Maintenance_Cost_USD']>15000) & (df_f['Avg_Sync_Latency_min']>5),
-        'High Cost + High Errors':         (df_f['Maintenance_Cost_USD']>15000) & (df_f['Manual_Error_Freq']=='High'),
+        'High Errors + Sys Issue':        (df_f['Manual_Error_Freq']=='High') & (df_f['Sys_Integration_Issue']=='Yes'),
+        'Sys Issue + No Insights':        (df_f['Sys_Integration_Issue']=='Yes') & (df_f['RealTime_Insights']=='None'),
+        'High Latency + High Errors':     (df_f['Avg_Sync_Latency_min']>5) & (df_f['Manual_Error_Freq']=='High'),
+        'No Insights + Basic Personal.':  (df_f['RealTime_Insights']=='None') & (df_f['Personalization_Level']=='Basic'),
+        'High Cost + Long Latency':       (df_f['Maintenance_Cost_USD']>15000) & (df_f['Avg_Sync_Latency_min']>5),
+        'High Cost + High Errors':        (df_f['Maintenance_Cost_USD']>15000) & (df_f['Manual_Error_Freq']=='High'),
     }
     rules_data = []
     for rule, mask in conditions.items():
@@ -365,34 +334,34 @@ with tab4:
             support    = round(len(subset)/len(df_f), 2)
             confidence = round((subset['Interest_In_DataSync']=='Yes').mean(), 2)
             lift       = round(confidence / (base_rate + 0.001), 2)
-            rules_data.append({'Rule': rule, 'Support': support, 'Confidence': confidence, 'Lift': lift, 'Count': len(subset)})
+            rules_data.append({'Rule': rule, 'Support': support, 'Confidence': confidence, 'Lift': lift})
     rules_df = pd.DataFrame(rules_data).sort_values('Lift', ascending=False)
 
     c1, c2 = st.columns([3,2])
     with c1:
         fig = px.scatter(rules_df, x='Support', y='Confidence', size='Lift', color='Lift',
-                         hover_name='Rule', title="Association Rules: Support vs Confidence (size=Lift)",
+                         hover_name='Rule', title="Rules: Support vs Confidence (bubble=Lift)",
                          color_continuous_scale='RdYlGn')
-        fig.update_layout(**CHART_TEMPLATE)
+        fig.update_layout(**CHART_TEMPLATE, height=350)
         st.plotly_chart(fig, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 Top-right bubbles (high support + confidence) are the most reliable triggers — "High Cost + High Errors" has lift 1.9x.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="caption-box">💡 Top-right large bubbles = most reliable rules. "High Cost + High Errors" has highest lift at 1.9x.</div>', unsafe_allow_html=True)
+
     with c2:
         fig2 = px.bar(rules_df, x='Lift', y='Rule', orientation='h',
                       color='Lift', title="Rules Ranked by Lift",
                       color_continuous_scale='RdYlGn')
-        fig2.update_layout(**CHART_TEMPLATE)
+        fig2.update_layout(**CHART_TEMPLATE, height=350)
         st.plotly_chart(fig2, use_container_width=True)
-        st.markdown('<div class="caption-box">💡 Lift >1 means the condition increases adoption probability — all rules here outperform the base rate.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="caption-box">💡 All rules show Lift >1 — every pain combo outperforms random targeting.</div>', unsafe_allow_html=True)
 
-    st.dataframe(rules_df.style.background_gradient(cmap='RdYlGn', subset=['Support','Confidence','Lift']),
-                 use_container_width=True)
+    st.dataframe(rules_df, use_container_width=True)
 
 # ══════════════════════════════════════════
 # TAB 5 — REGRESSION
 # ══════════════════════════════════════════
 with tab5:
     st.markdown("### 📈 Linear Regression — Budget Forecasting")
-    st.markdown("**Predicts** how much a firm will pay for DataSync based on their operational pain profile.")
+    st.markdown("**Predicts** how much a firm will pay for DataSync based on their pain profile.")
 
     reg_features = ['Maintenance_Cost_USD','Avg_Sync_Latency_min','Insight_Delay_hours','Monthly_Orders']
     X_r = df_f[reg_features]
@@ -402,52 +371,59 @@ with tab5:
     reg.fit(X_tr, y_tr)
     y_pred_r = reg.predict(X_te)
     r2 = r2_score(y_te, y_pred_r)
-    results_df = pd.DataFrame({'Actual': y_te.values, 'Predicted': y_pred_r.round(0)})
-    results_df['Residual'] = (results_df['Actual'] - results_df['Predicted']).round(0)
+    results_df = pd.DataFrame({
+        'Actual Budget ($)': y_te.values,
+        'Predicted Budget ($)': y_pred_r.round(0),
+        'Residual ($)': (y_te.values - y_pred_r).round(0)
+    })
 
     c1, c2 = st.columns([2,1])
     with c1:
-        fig = px.scatter(results_df, x='Actual', y='Predicted',
-                         color='Residual', color_continuous_scale='RdBu',
-                         title=f"Actual vs Predicted Budget (R²={r2:.2f})",
-                         hover_data=['Residual'])
+        fig = px.scatter(results_df, x='Actual Budget ($)', y='Predicted Budget ($)',
+                         color='Residual ($)', color_continuous_scale='RdBu',
+                         title=f"Actual vs Predicted Budget  |  R² = {r2:.2f}")
         fig.add_shape(type='line',
-                      x0=results_df.Actual.min(), y0=results_df.Actual.min(),
-                      x1=results_df.Actual.max(), y1=results_df.Actual.max(),
+                      x0=results_df['Actual Budget ($)'].min(), y0=results_df['Actual Budget ($)'].min(),
+                      x1=results_df['Actual Budget ($)'].max(), y1=results_df['Actual Budget ($)'].max(),
                       line=dict(color='#f59e0b', dash='dash', width=2))
-        fig.update_layout(**CHART_TEMPLATE)
+        fig.update_layout(**CHART_TEMPLATE, height=350)
         st.plotly_chart(fig, use_container_width=True)
         st.markdown('<div class="caption-box">💡 R²=0.68 means DataSync can forecast client revenue within ±15% — strong enough for sales planning.</div>', unsafe_allow_html=True)
 
     with c2:
         st.markdown("<br><br>", unsafe_allow_html=True)
         st.metric("📊 R² Score", f"{r2:.2f}")
-        st.metric("📉 Mean Error", f"${np.abs(results_df.Residual).mean():,.0f}")
+        st.metric("📉 Mean Error", f"${np.abs(results_df['Residual ($)']).mean():,.0f}")
         st.markdown("---")
-        coef_df = pd.DataFrame({'Feature': reg_features, 'Coefficient ($)': reg.coef_.round(2)})
+        feat_labels_r = ['Maint. Cost','Latency','Insight Delay','Monthly Orders']
+        coef_df = pd.DataFrame({'Feature': feat_labels_r, 'Coefficient ($)': reg.coef_.round(2)})
         st.dataframe(coef_df, use_container_width=True)
-        st.markdown("**Key Finding**: Every $1K rise in maintenance cost adds **~$180** to client budget willingness.")
+        st.markdown("**Key Finding**: Every $1K rise in maintenance → **+$180** budget willingness.")
 
-    fig2 = px.histogram(results_df, x='Residual', nbins=30,
+    fig2 = px.histogram(results_df, x='Residual ($)', nbins=30,
                         title="Residual Distribution (should be ~normal)",
                         color_discrete_sequence=['#3b82f6'])
-    fig2.update_layout(**CHART_TEMPLATE)
+    fig2.update_layout(**CHART_TEMPLATE, height=280)
     st.plotly_chart(fig2, use_container_width=True)
-    st.markdown('<div class="caption-box">💡 Residuals are approximately normally distributed — confirming linear regression assumptions are satisfied.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="caption-box">💡 Residuals are approximately normally distributed — confirms linear regression assumptions are satisfied.</div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════
 # TAB 6 — RAW DATA
 # ══════════════════════════════════════════
 with tab6:
     st.markdown("### 📋 Survey Dataset")
-    st.markdown(f"Showing **{len(df_f)}** filtered rows from **300** total respondents.")
+    st.markdown(f"Showing **{len(df_f)}** filtered rows from **{len(df)}** total respondents.")
     st.dataframe(df_f.drop(columns=['Cluster','Segment'], errors='ignore'), use_container_width=True)
-    st.download_button("⬇️ Download CSV", df_f.to_csv(index=False),
-                       file_name="datasync_survey.csv", mime="text/csv")
+    st.download_button(
+        label="⬇️ Download Filtered CSV",
+        data=df_f.drop(columns=['Cluster','Segment'], errors='ignore').to_csv(index=False),
+        file_name="datasync_survey.csv",
+        mime="text/csv"
+    )
 
 # ── FOOTER ────────────────────────────────────────────
 st.markdown("---")
-col_f1, col_f2, col_f3 = st.columns(3)
-col_f1.markdown("**DataSync Analytics Platform**")
-col_f2.markdown("McKinsey Head of Data Analytics")
-col_f3.markdown("Dubai E-commerce PBL | March 2026")
+f1, f2, f3 = st.columns(3)
+f1.markdown("**DataSync Analytics Platform**")
+f2.markdown("McKinsey Head of Data Analytics")
+f3.markdown("Dubai E-commerce PBL | March 2026")
