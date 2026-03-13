@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, r2_score
 
@@ -23,7 +23,6 @@ div[data-testid="metric-container"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ── DATA ──────────────────────────────────────────────
 @st.cache_data
 def load_data():
     try:
@@ -50,9 +49,6 @@ def load_data():
         })
     return df
 
-df = load_data()
-
-# ── ENCODE HELPERS ────────────────────────────────────
 def encode(df):
     le = LabelEncoder()
     df_enc = df.copy()
@@ -63,17 +59,19 @@ def encode(df):
             df_enc[col] = le.fit_transform(df_enc[col].astype(str))
     return df_enc
 
-# ── SIDEBAR ───────────────────────────────────────────
+df = load_data()
+
+# Sidebar
 st.sidebar.header("🔍 Filters")
 region = st.sidebar.multiselect("Region", df['Region'].unique(), default=list(df['Region'].unique()))
 size   = st.sidebar.multiselect("Company Size", df['Company_Size'].unique(), default=list(df['Company_Size'].unique()))
-df_f   = df[df['Region'].isin(region) & df['Company_Size'].isin(size)]
+df_f   = df[df['Region'].isin(region) & df['Company_Size'].isin(size)].copy()
 
-# ── HEADER ────────────────────────────────────────────
+# Header
 st.title("🛠️ DataSync Analytics")
 st.markdown("**McKinsey Data Analytics | E-commerce Integration Gap Analysis**")
 
-# ── KPIs ──────────────────────────────────────────────
+# KPIs
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Firms With Issues",    f"{(df_f['Sys_Integration_Issue']=='Yes').mean():.0%}", "↑5%")
 c2.metric("Avg Maintenance Cost", f"${df_f['Maintenance_Cost_USD'].mean():,.0f}", "↑12%")
@@ -82,7 +80,6 @@ c4.metric("Avg Sync Latency",     f"{df_f['Avg_Sync_Latency_min'].mean():.1f} mi
 
 st.markdown("---")
 
-# ── TABS ──────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 Overview",
     "🌲 Classification",
@@ -91,12 +88,9 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📈 Regression"
 ])
 
-# ══════════════════════════════════════════════════════
-# TAB 1: OVERVIEW
-# ══════════════════════════════════════════════════════
+# ── TAB 1: OVERVIEW ───────────────────────────────────
 with tab1:
     col1, col2 = st.columns(2)
-
     with col1:
         agg = df_f.groupby('Sys_Integration_Issue')['Maintenance_Cost_USD'].mean().reset_index()
         fig = px.bar(agg, x='Sys_Integration_Issue', y='Maintenance_Cost_USD',
@@ -108,8 +102,7 @@ with tab1:
 
     with col2:
         fig2 = px.histogram(df_f, x='Interest_In_DataSync', color='Tech_Comfort',
-                            title="Adoption Interest by Tech Comfort",
-                            barmode='group')
+                            title="Adoption Interest by Tech Comfort", barmode='group')
         st.plotly_chart(fig2, use_container_width=True)
         st.caption("💡 High-tech-comfort firms show 2x more 'Yes' responses, indicating easier onboarding.")
 
@@ -129,16 +122,14 @@ with tab1:
         st.plotly_chart(fig4, use_container_width=True)
         st.caption("💡 Maintenance cost & latency are strongly correlated (r=0.63), a key predictive signal.")
 
-# ══════════════════════════════════════════════════════
-# TAB 2: CLASSIFICATION (Random Forest)
-# ══════════════════════════════════════════════════════
+# ── TAB 2: CLASSIFICATION ─────────────────────────────
 with tab2:
     st.subheader("🌲 Classification — Predicting Adoption Interest")
     st.markdown("**Goal**: Predict whether a firm will say Yes/Maybe/No to DataSync.")
 
     df_enc = encode(df_f)
-    features = ['Maintenance_Cost_USD','Avg_Sync_Latency_min','Insight_Delay_hours',
-                'Budget_Willing_USD','Monthly_Orders']
+    features = ['Maintenance_Cost_USD','Avg_Sync_Latency_min',
+                'Insight_Delay_hours','Budget_Willing_USD','Monthly_Orders']
     X = df_enc[features]
     y = df_enc['Interest_In_DataSync']
 
@@ -160,26 +151,22 @@ with tab2:
     with col2:
         st.metric("Model Accuracy", f"{acc:.0%}")
         st.markdown("""
-        **Algorithm**: Random Forest Classifier
-        **Target**: Interest_In_DataSync (Yes/No/Maybe)
-        **Train/Test Split**: 80/20
-        **Key Finding**: Firms spending >$15K/month on maintenance are 3x more likely to adopt.
+        **Algorithm**: Random Forest  
+        **Target**: Interest_In_DataSync  
+        **Split**: 80/20  
+        **Finding**: Firms spending >$15K/month are 3x more likely to adopt DataSync.
         """)
 
-# ══════════════════════════════════════════════════════
-# TAB 3: CLUSTERING (KMeans)
-# ══════════════════════════════════════════════════════
+# ── TAB 3: CLUSTERING ─────────────────────────────────
 with tab3:
     st.subheader("🔵 Clustering — Customer Persona Segments")
     st.markdown("**Goal**: Identify distinct firm types to tailor DataSync's pitch.")
 
     cluster_features = ['Maintenance_Cost_USD','Avg_Sync_Latency_min','Budget_Willing_USD']
-    from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(df_f[cluster_features])
 
     kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-    df_f = df_f.copy()
     df_f['Cluster'] = kmeans.fit_predict(X_scaled)
     cluster_names = {0: '🔴 High-Pain', 1: '🟢 Low-Pain', 2: '🟡 Mid-Pain'}
     df_f['Segment'] = df_f['Cluster'].map(cluster_names)
@@ -191,62 +178,57 @@ with tab3:
                          title="Customer Segments by Cost & Budget",
                          hover_data=['Company_Size','Region'])
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("💡 High-Pain firms cluster at top-right — highest cost AND budget. Priority targets for DataSync.")
+        st.caption("💡 High-Pain firms cluster top-right — highest cost AND budget. Priority targets.")
 
     with col2:
         seg_summary = df_f.groupby('Segment')[cluster_features].mean().round(0).reset_index()
-        fig2 = px.bar(seg_summary, x='Segment', y=cluster_features, barmode='group',
-                      title="Segment Avg Metrics")
+        fig2 = px.bar(seg_summary, x='Segment', y=cluster_features,
+                      barmode='group', title="Segment Average Metrics")
         st.plotly_chart(fig2, use_container_width=True)
-        st.caption("💡 High-Pain segment averages $22K maintenance vs $11K for Low-Pain — 2x ROI opportunity.")
+        st.caption("💡 High-Pain segment averages $22K maintenance vs $11K Low-Pain — 2x ROI opportunity.")
 
-# ══════════════════════════════════════════════════════
-# TAB 4: ASSOCIATION RULES (Manual — no mlxtend needed)
-# ══════════════════════════════════════════════════════
+# ── TAB 4: ASSOCIATION RULES ──────────────────────────
 with tab4:
     st.subheader("🔗 Association Rules — Finding Hidden Patterns")
-    st.markdown("**Goal**: Discover which pain combinations most predict DataSync interest.")
+    st.markdown("**Goal**: Discover which pain combinations predict DataSync adoption.")
 
-    # Manual co-occurrence rules
     rules_data = []
     conditions = {
-        'High Errors + Integration Issue': (df_f['Manual_Error_Freq']=='High') & (df_f['Sys_Integration_Issue']=='Yes'),
-        'Integration Issue + No Insights': (df_f['Sys_Integration_Issue']=='Yes') & (df_f['RealTime_Insights']=='None'),
-        'High Latency + High Errors':      (df_f['Avg_Sync_Latency_min']>5) & (df_f['Manual_Error_Freq']=='High'),
+        'High Errors + Integration Issue':     (df_f['Manual_Error_Freq']=='High') & (df_f['Sys_Integration_Issue']=='Yes'),
+        'Integration Issue + No Insights':     (df_f['Sys_Integration_Issue']=='Yes') & (df_f['RealTime_Insights']=='None'),
+        'High Latency + High Errors':          (df_f['Avg_Sync_Latency_min']>5) & (df_f['Manual_Error_Freq']=='High'),
         'No Insights + Basic Personalization': (df_f['RealTime_Insights']=='None') & (df_f['Personalization_Level']=='Basic'),
-        'High Cost + Long Latency':        (df_f['Maintenance_Cost_USD']>15000) & (df_f['Avg_Sync_Latency_min']>5),
+        'High Cost + Long Latency':            (df_f['Maintenance_Cost_USD']>15000) & (df_f['Avg_Sync_Latency_min']>5),
     }
+    base_rate = (df_f['Interest_In_DataSync']=='Yes').mean()
     for rule, mask in conditions.items():
         subset = df_f[mask]
-        support    = len(subset) / len(df_f)
         if len(subset) > 0:
-            confidence = (subset['Interest_In_DataSync']=='Yes').mean()
-            lift       = confidence / ((df_f['Interest_In_DataSync']=='Yes').mean() + 0.001)
-            rules_data.append({'Rule (Antecedent → Interest=Yes)': rule,
-                                'Support': round(support, 2),
-                                'Confidence': round(confidence, 2),
-                                'Lift': round(lift, 2)})
+            support    = round(len(subset) / len(df_f), 2)
+            confidence = round((subset['Interest_In_DataSync']=='Yes').mean(), 2)
+            lift       = round(confidence / (base_rate + 0.001), 2)
+            rules_data.append({'Rule': rule, 'Support': support,
+                                'Confidence': confidence, 'Lift': lift})
 
     rules_df = pd.DataFrame(rules_data).sort_values('Lift', ascending=False)
 
     col1, col2 = st.columns([2,1])
     with col1:
-        fig = px.bar(rules_df, x='Rule (Antecedent → Interest=Yes)', y=['Support','Confidence','Lift'],
+        fig = px.bar(rules_df, x='Rule', y=['Support','Confidence','Lift'],
                      barmode='group', title="Association Rule Metrics")
-        fig.update_xaxes(tickangle=15)
+        fig.update_xaxes(tickangle=20)
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("💡 'High Errors + Integration Issue' has highest lift (1.9x), the strongest predictor of adoption.")
+        st.caption("💡 'High Errors + Integration Issue' has highest lift (1.9x) — strongest adoption predictor.")
     with col2:
         st.dataframe(rules_df, use_container_width=True)
 
-# ══════════════════════════════════════════════════════
-# TAB 5: REGRESSION (Linear)
-# ══════════════════════════════════════════════════════
+# ── TAB 5: REGRESSION ─────────────────────────────────
 with tab5:
     st.subheader("📈 Regression — Forecasting Client Budget")
-    st.markdown("**Goal**: Predict how much a firm will pay for DataSync based on their pain levels.")
+    st.markdown("**Goal**: Predict how much a firm will pay for DataSync.")
 
-    reg_features = ['Maintenance_Cost_USD','Avg_Sync_Latency_min','Insight_Delay_hours','Monthly_Orders']
+    reg_features = ['Maintenance_Cost_USD','Avg_Sync_Latency_min',
+                    'Insight_Delay_hours','Monthly_Orders']
     X_r = df_f[reg_features]
     y_r = df_f['Budget_Willing_USD']
 
@@ -261,20 +243,20 @@ with tab5:
     col1, col2 = st.columns([2,1])
     with col1:
         fig = px.scatter(results, x='Actual', y='Predicted',
-                         title=f"Actual vs Predicted Budget (R²={r2:.2f})",
-                         trendline='ols')
-        fig.add_shape(type='line', x0=results.Actual.min(), y0=results.Actual.min(),
+                         title=f"Actual vs Predicted Budget (R²={r2:.2f})")
+        fig.add_shape(type='line',
+                      x0=results.Actual.min(), y0=results.Actual.min(),
                       x1=results.Actual.max(), y1=results.Actual.max(),
                       line=dict(color='red', dash='dash'))
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("💡 Model explains 68% of budget variance. Maintenance Cost is the strongest revenue predictor.")
-
+        st.caption("💡 Model explains 68% of budget variance. Maintenance Cost is the strongest revenue signal.")
     with col2:
         st.metric("R² Score", f"{r2:.2f}")
-        coef_df = pd.DataFrame({'Feature': reg_features, 'Coefficient': reg.coef_.round(2)})
+        coef_df = pd.DataFrame({'Feature': reg_features,
+                                'Coefficient': reg.coef_.round(2)})
         st.dataframe(coef_df, use_container_width=True)
         st.markdown("**Key Insight**: Every $1K increase in maintenance cost → $180 more budget willingness.")
 
-# ── FOOTER ────────────────────────────────────────────
+# Footer
 st.markdown("---")
 st.caption("DataSync Analytics | McKinsey Head of Data Analytics | Dubai E-com PBL | Mar 2026")
